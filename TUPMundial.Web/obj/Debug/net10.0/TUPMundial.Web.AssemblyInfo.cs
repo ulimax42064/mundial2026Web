@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("TUPMundial.Web")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e0b65e05e15a7f10157a7572e27d6e7960c8cb61")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d1162c5353a88ce222ab115d58aaa675aba17a81")]
 [assembly: System.Reflection.AssemblyProductAttribute("TUPMundial.Web")]
 [assembly: System.Reflection.AssemblyTitleAttribute("TUPMundial.Web")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
