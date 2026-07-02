@@ -24,10 +24,10 @@
                                                                                 <div class="detalle-row"><div class="emoji">🎟</div><div><div class="label">CANTIDAD</div><div class="valor">@ViewBag.Cantidad entrada(s)</div></div></div>
                                                                                     <div class="detalle-row"><div class="emoji">💰</div><div><div class="label">TOTAL PAGADO</div><div class="valor">$@ViewBag.Total</div></div></div>
 
-                                                                                        <a href="/Tickets">
-                                                                                                <button class="btn-comprar" style="margin-top:16px;">🎟 Ver mis tickets</button>
-                                                                                                    </a>
-                                                                                                        <a href="/Partidos">
-                                                                                                                <button class="btn-comprar" style="margin-top:10px; background:var(--verde-medio);">Ver más partidos</button>
-                                                                                                                    </a>
+                                                                                        <a href="@Url.Action("Index", "Tickets")">
+        <button class="btn-comprar" style="margin-top:16px;">🎟 Ver mis tickets</button>
+    </a>
+    <a href="@Url.Action("Index", "Partidos")">
+        <button class="btn-comprar" style="margin-top:10px; background:var(--verde-medio);">Ver más partidos</button>
+    </a>
                                                                                                                     </div>
