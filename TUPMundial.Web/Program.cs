@@ -1,29 +1,25 @@
+using TUPMundial.Web.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 builder.Services.AddControllersWithViews();
-
-var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
+builder.Services.AddSingleton<MundialService>(); // ← registra el servicio
+builder.Services.AddSession(options =>           // ← habilita sesiones
 {
-    app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
-}
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+        options.Cookie.HttpOnly = true;
+        });
 
-app.UseHttpsRedirection();
-app.UseRouting();
+        var app = builder.Build();
 
-app.UseAuthorization();
+        app.UseHttpsRedirection();
+        app.UseStaticFiles();
+        app.UseRouting();
+        app.UseSession();  // ← importante: antes de MapControllerRoute
+        app.UseAuthorization();
 
-app.MapStaticAssets();
+        app.MapControllerRoute(
+            name: "default",
+                pattern: "{controller=Auth}/{action=Login}/{id?}"); // ← arranca en Login
 
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}")
-    .WithStaticAssets();
-
-
-app.Run();
+                app.Run();

@@ -1,0 +1,27 @@
+@model TUPMundial.Web.Models.Partido
+@{ ViewData["Title"] = "Detalle"; Layout = "~/Views/Shared/_Layout.cshtml"; }
+
+<div class="header" style="padding: 16px 20px 20px;">
+    <div class="header-left">
+            <span style="font-size:1.6rem;">⚽</span>
+                    <div class="header-title" style="font-size:1.15rem;">Detalle del Partido</div>
+                        </div>
+                        </div>
+                        <div class="header-strip"></div>
+                        <a href="/Partidos" class="volver">← Volver</a>
+
+                        <div class="container" style="padding-top:12px;">
+                            <div class="detalle-vs">
+                                    <div class="equipo">@Model.Flag1 @Model.Equipo1</div>
+                                            <div class="vs">VS</div>
+                                                    <div class="equipo">@Model.Equipo2 @Model.Flag2</div>
+                                                        </div>
+                                                            <div class="detalle-row"><div class="emoji">📅</div><div><div class="label">FECHA</div><div class="valor">@Model.Fecha</div></div></div>
+                                                                <div class="detalle-row"><div class="emoji">🏆</div><div><div class="label">GRUPO</div><div class="valor">@Model.Grupo</div></div></div>
+                                                                    <div class="detalle-row"><div class="emoji">🏟</div><div><div class="label">ESTADIO</div><div class="valor">@Model.Estadio</div></div></div>
+                                                                        <div class="detalle-row"><div class="emoji">🎟</div><div><div class="label">PRECIO ENTRADA</div><div class="valor">@Model.Precio</div></div></div>
+
+                                                                            <a href="/Tickets/Comprar/@Model.Id">
+                                                                                    <button class="btn-comprar" style="margin-top:16px;">🎟 Comprar entrada</button>
+                                                                                        </a>
+                                                                                        </div>

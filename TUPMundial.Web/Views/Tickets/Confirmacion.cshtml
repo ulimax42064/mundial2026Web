@@ -1,0 +1,33 @@
+@model TUPMundial.Web.Models.Partido
+@{ ViewData["Title"] = "Confirmación"; Layout = "~/Views/Shared/_Layout.cshtml"; }
+
+<div class="header" style="padding: 16px 20px 20px;">
+    <div class="header-left">
+            <span style="font-size:1.6rem;">⚽</span>
+                    <div class="header-title" style="font-size:1.15rem;">Compra Exitosa</div>
+                        </div>
+                        </div>
+                        <div class="header-strip"></div>
+
+                        <div class="container" style="padding-top:20px;">
+                            <div class="alerta-ok" style="padding:24px; font-size:1.1rem;">
+                                    ✅ ¡Compra realizada con éxito!
+                                        </div>
+
+                                            <div class="detalle-vs">
+                                                    <div class="equipo">@Model.Flag1 @Model.Equipo1</div>
+                                                            <div class="vs">VS</div>
+                                                                    <div class="equipo">@Model.Equipo2 @Model.Flag2</div>
+                                                                        </div>
+
+                                                                            <div class="detalle-row"><div class="emoji">🏟</div><div><div class="label">SECTOR</div><div class="valor">@ViewBag.Sector</div></div></div>
+                                                                                <div class="detalle-row"><div class="emoji">🎟</div><div><div class="label">CANTIDAD</div><div class="valor">@ViewBag.Cantidad entrada(s)</div></div></div>
+                                                                                    <div class="detalle-row"><div class="emoji">💰</div><div><div class="label">TOTAL PAGADO</div><div class="valor">$@ViewBag.Total</div></div></div>
+
+                                                                                        <a href="/Tickets">
+                                                                                                <button class="btn-comprar" style="margin-top:16px;">🎟 Ver mis tickets</button>
+                                                                                                    </a>
+                                                                                                        <a href="/Partidos">
+                                                                                                                <button class="btn-comprar" style="margin-top:10px; background:var(--verde-medio);">Ver más partidos</button>
+                                                                                                                    </a>
+                                                                                                                    </div>
