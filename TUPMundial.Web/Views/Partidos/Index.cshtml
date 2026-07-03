@@ -11,31 +11,29 @@
             </div>
         </div>
         <div style="display:flex; flex-direction:column; align-items:flex-end; gap:8px;">
-            <a href="@Url.Action("Logout","Auth")"><button class="btn-salir">Salir</button></a>
-            <a href="@Url.Action("Index","Tickets")" class="mis-tickets-link">🎟 Mis tickets</a>
+            <a href="@Url.Action("Logout", "Auth")"><button class="btn-salir">Salir</button></a>
+            <a href="@Url.Action("Index", "Tickets")" class="mis-tickets-link">🎟 Mis tickets</a>
         </div>
     </div>
 </div>
 <div class="header-strip"></div>
 
-<!-- Filtros -->
 <div class="filtros">
-    <a href="/Partidos">
+    <a href="@Url.Action("Index", "Partidos")">
         <button class="filtro-btn @(ViewBag.GrupoSel == "Todos" ? "activo" : "")">Todos</button>
     </a>
-    @foreach (var g in ViewBag.Grupos as List<string>)
+    @foreach (var g in (ViewBag.Grupos as List<string>) ?? new List<string>())
     {
-        <a href="/Partidos?grupo=@g">
+        <a href="@Url.Action("Index", "Partidos", new { grupo = g })">
             <button class="filtro-btn @(ViewBag.GrupoSel == g ? "activo" : "")">@g</button>
         </a>
     }
 </div>
 
-<!-- Lista -->
 <div class="container" style="padding-top:8px;">
     @foreach (var p in Model)
     {
-        <a href="/Partidos/Detalle/@p.Id">
+        <a href="@Url.Action("Detalle", "Partidos", new { id = p.Id })">
             <div class="partido-card">
                 <div>
                     <div class="partido-grupo">@p.Grupo</div>

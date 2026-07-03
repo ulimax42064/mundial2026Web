@@ -3,52 +3,52 @@
 
 <div class="header" style="padding: 16px 20px 20px;">
     <div class="header-left">
-            <span style="font-size:1.6rem;">⚽</span>
-                    <div>
-                                <div class="header-title" style="font-size:1.15rem;">Mis Tickets</div>
-                                            <div class="header-sub">Entradas compradas</div>
-                                                    </div>
-                                                        </div>
-                                                        </div>
-                                                        <div class="header-strip"></div>
-                                                        <a href="@Url.Action("Index","Partidos")" class="volver">← Volver</a>
+        <span style="font-size:1.6rem;">⚽</span>
+        <div>
+            <div class="header-title" style="font-size:1.15rem;">Mis Tickets</div>
+            <div class="header-sub">Entradas compradas</div>
+        </div>
+    </div>
+</div>
+<div class="header-strip"></div>
+<a href="@Url.Action("Index", "Partidos")" class="volver">← Volver</a>
 
-                                                        <div class="container" style="padding-top:12px;">
-                                                            <div class="tickets-resumen">
-                                                                    <div>
-                                                                                <div class="res-label">Total de entradas</div>
-                                                                                            <div style="margin-top:10px;" class="res-label">Total gastado</div>
-                                                                                                    </div>
-                                                                                                            <div>
-                                                                                                                        <div class="res-valor">@ViewBag.TotalEntradas</div>
-                                                                                                                                    <div class="res-valor" style="font-size:1.1rem; margin-top:6px;">$@ViewBag.TotalGastado</div>
-                                                                                                                                            </div>
-                                                                                                                                                </div>
+<div class="container" style="padding-top:12px;">
+    <div class="tickets-resumen">
+        <div>
+            <div class="res-label">Total de entradas</div>
+            <div style="margin-top:10px;" class="res-label">Total gastado</div>
+        </div>
+        <div>
+            <div class="res-valor">@ViewBag.TotalEntradas</div>
+            <div class="res-valor" style="font-size:1.1rem; margin-top:6px;">$@ViewBag.TotalGastado</div>
+        </div>
+    </div>
 
-                                                                                                                                                    @if (!Model.Any())
-                                                                                                                                                        {
-                                                                                                                                                                <div style="text-align:center; color:var(--texto-muted); padding:40px;">
-                                                                                                                                                                            🎟 No compraste entradas todavía.<br />
-                                                                                                                                                                                        <a href="@Url.Action("Index","Partidos")" style="color:var(--dorado); font-weight:700;">Ver partidos →</a>
-                                                                                                                                                                                                </div>
-                                                                                                                                                                                                    }
-                                                                                                                                                                                                        else
-                                                                                                                                                                                                            {
-                                                                                                                                                                                                                    @foreach (var t in Model.AsEnumerable().Reverse())
-                                                                                                                                                                                                                            {
-                                                                                                                                                                                                                                        <div class="ticket-card">
-                                                                                                                                                                                                                                                        <div>
-                                                                                                                                                                                                                                                                            <span class="ticket-grupo">@t.Grupo</span>
-                                                                                                                                                                                                                                                                                                <span class="ticket-sector">@t.Sector</span>
-                                                                                                                                                                                                                                                                                                                </div>
-                                                                                                                                                                                                                                                                                                                                <div class="ticket-equipos">@t.Equipo1 vs @t.Equipo2</div>
-                                                                                                                                                                                                                                                                                                                                                <div class="ticket-info">
-                                                                                                                                                                                                                                                                                                                                                                    📅 @t.Fecha<br />
-                                                                                                                                                                                                                                                                                                                                                                                        🏟 @t.Estadio<br />
-                                                                                                                                                                                                                                                                                                                                                                                                            🎟 @t.Cantidad entrada(s)<br />
-                                                                                                                                                                                                                                                                                                                                                                                                                                💰 Total: $@t.Total
-                                                                                                                                                                                                                                                                                                                                                                                                                                                </div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                            </div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                    }
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                        }
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </div>
+    @if (!Model.Any())
+    {
+        <div style="text-align:center; color:var(--texto-muted); padding:40px;">
+            🎟 No compraste entradas todavía.<br />
+            <a href="@Url.Action("Index", "Partidos")" style="color:var(--dorado); font-weight:700;">Ver partidos →</a>
+        </div>
+    }
+    else
+    {
+        @foreach (var t in Model.AsEnumerable().Reverse())
+        {
+            <div class="ticket-card">
+                <div>
+                    <span class="ticket-grupo">@t.Grupo</span>
+                    <span class="ticket-sector">@t.Sector</span>
+                </div>
+                <div class="ticket-equipos">@t.Equipo1 vs @t.Equipo2</div>
+                <div class="ticket-info">
+                    📅 @t.Fecha<br />
+                    🏟 @t.Estadio<br />
+                    🎟 @t.Cantidad entrada(s)<br />
+                    💰 Total: $@t.Total
+                </div>
+            </div>
+        }
+    }
+</div>
