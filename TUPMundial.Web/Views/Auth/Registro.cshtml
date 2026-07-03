@@ -1,45 +1,40 @@
 @{ ViewData["Title"] = "Registro"; Layout = "~/Views/Shared/_Layout.cshtml"; }
-
-<div class="header" style="text-align:center; padding: 28px 24px 24px;">
-    <div style="font-size:2.5rem; margin-bottom:8px;">⚽</div>
-        <div class="header-title" style="font-size:1.5rem;">Crear cuenta</div>
-            <div class="header-sub">Registrate para ver los partidos</div>
-            </div>
-            <div class="header-strip"></div>
-
-            <div class="container">
-                <div class="form-box">
-                        <div class="form-title">Registro</div>
-
-                                @if (ViewBag.Error != null)
-                                        {
-                                                    <div class="alerta-error">@ViewBag.Error</div>
-                                                            }
-
-                                                                    <form method="post">
-                                                                                <div class="form-group">
-                                                                                                <label>Nombre</label>
-                                                                                                                <input type="text" name="nombre" placeholder="Tu nombre" required />
-                                                                                                                            </div>
-                                                                                                                                        <div class="form-group">
-                                                                                                                                                        <label>Email</label>
-                                                                                                                                                                        <input type="email" name="email" placeholder="tucorreo@email.com" required />
-                                                                                                                                                                                    </div>
-                                                                                                                                                                                                <div class="form-group">
-                                                                                                                                                                                                                <label>Contraseña</label>
-                                                                                                                                                                                                                                <input type="password" name="password" placeholder="Mínimo 6 caracteres" required />
-                                                                                                                                                                                                                                            </div>
-                                                                                                                                                                                                                                                        <div class="form-group">
-                                                                                                                                                                                                                                                                        <label>Confirmar contraseña</label>
-                                                                                                                                                                                                                                                                                        <input type="password" name="password2" placeholder="Repetí la contraseña" required />
-                                                                                                                                                                                                                                                                                                    </div>
-                                                                                                                                                                                                                                                                                                                <button type="submit" class="btn-primary">Crear cuenta</button>
-                                                                                                                                                                                                                                                                                                                        </form>
-
-                                                                                                                                                                                                                                                                                                                                <form method="get" action="/Auth/Login">
-                                                                                                                                                                                                                                                                                                                                            <button type="submit" class="btn-secondary">
-                                                                                                                                                                                                                                                                                                                                                            ¿Ya tenés cuenta? <span>Iniciá sesión</span>
-                                                                                                                                                                                                                                                                                                                                                                        </button>
-                                                                                                                                                                                                                                                                                                                                                                                </form>
-                                                                                                                                                                                                                                                                                                                                                                                    </div>
-                                                                                                                                                                                                                                                                                                                                                                                    </div>
+<div class="header" style="text-align:center; padding:28px 24px 24px;">
+    <div style="font-size:2.5rem;">⚽</div>
+    <div class="header-title" style="font-size:1.5rem;">Crear cuenta</div>
+    <div class="header-sub">Registrate para ver los partidos</div>
+</div>
+<div class="header-strip"></div>
+<div class="container">
+  <div class="form-box">
+    <div class="form-title">Registro</div>
+    <form method="post">
+      <div class="form-group">
+        <label>Nombre</label>
+        <input type="text" name="nombre" maxlength="30" placeholder="Solo letras, min 2 caracteres" required />
+        <div class="campo-error">@(ViewBag.ErrorNombre ?? string.Empty)</div>
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" name="email" maxlength="30" placeholder="tucorreo@email.com" required />
+        <div class="campo-error">@(ViewBag.ErrorEmail ?? string.Empty)</div>
+      </div>
+      <div class="form-group">
+        <label>Contrasena</label>
+        <input type="password" name="password" maxlength="30" placeholder="Min 8 caracteres, 1 mayuscula, 1 numero" required />
+        <div class="campo-error">@(ViewBag.ErrorPassword ?? string.Empty)</div>
+      </div>
+      <div class="form-group">
+        <label>Confirmar contrasena</label>
+        <input type="password" name="password2" maxlength="30" placeholder="Repeti la contrasena" required />
+      </div>
+      <button type="submit" class="btn-primary">Crear cuenta</button>
+    </form>
+    <form method="get" action="/Auth/Login">
+      <button type="submit" class="btn-secondary">Ya tenes cuenta? <span>Inicia sesion</span></button>
+    </form>
+  </div>
+</div>
+<style>
+.campo-error{color:#EF9A9A;font-size:0.78rem;margin-top:4px;min-height:18px;}
+</style>

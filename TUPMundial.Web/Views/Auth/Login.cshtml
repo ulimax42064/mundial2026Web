@@ -2,36 +2,91 @@
 
 <div class="header" style="text-align:center; padding: 32px 24px 28px;">
     <div style="font-size:3rem; margin-bottom:10px;">⚽</div>
-        <div class="header-title" style="font-size:1.6rem;">Mundial 2026</div>
-            <div class="header-sub">Iniciá sesión para continuar</div>
+    <div class="header-title" style="font-size:1.6rem;">Mundial 2026</div>
+    <div class="header-sub">Iniciá sesión para continuar</div>
+</div>
+<div class="header-strip"></div>
+
+<div class="container">
+    <div class="form-box">
+        <div class="form-title">Iniciar Sesión</div>
+
+        @if (ViewBag.Error != null)
+        {
+            <div class="alerta-error">⚠️ @ViewBag.Error</div>
+        }
+
+        <form method="post" id="formLogin">
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" name="email" id="email"
+                       placeholder="tucorreo@email.com"
+                       value="@(ViewBag.Email ?? "")"
+                       maxlength="30"
+                       oninput="validarEmail(this)"
+                       required />
+                <div id="emailError" class="campo-error"></div>
             </div>
-            <div class="header-strip"></div>
+            <div class="form-group">
+                <label>Contraseña <span id="passCount" style="color:var(--texto-muted); font-size:0.75rem;"></span></label>
+                <input type="password" name="password" id="password"
+                       placeholder="Mínimo 8 caracteres"
+                       maxlength="30"
+                       oninput="contarPass(this)"
+                       required />
+                <div id="passError" class="campo-error"></div>
+            </div>
+            <button type="submit" class="btn-primary">Ingresar</button>
+        </form>
 
-            <div class="container">
-                <div class="form-box">
-                        <div class="form-title">Iniciar Sesión</div>
+        <form method="get" action="@Url.Action("Registro", "Auth")">
+            <button type="submit" class="btn-secondary">
+                ¿No tenés cuenta? <span>Registrate</span>
+            </button>
+        </form>
+    </div>
+</div>
 
-                                @if (ViewBag.Error != null)
-                                        {
-                                                    <div class="alerta-error">@ViewBag.Error</div>
-                                                            }
+<style>
+    .campo-error { color: #EF9A9A; font-size: 0.78rem; margin-top: 4px; min-height: 18px; }
+    .input-ok    { border-color: #4CAF50 !important; }
+    .input-err   { border-color: #EF5350 !important; }
+</style>
 
-                                                                    <form method="post">
-                                                                                <div class="form-group">
-                                                                                                <label>Email</label>
-                                                                                                                <input type="email" name="email" placeholder="tucorreo@email.com" required />
-                                                                                                                            </div>
-                                                                                                                                        <div class="form-group">
-                                                                                                                                                        <label>Contraseña</label>
-                                                                                                                                                                        <input type="password" name="password" placeholder="••••••••" required />
-                                                                                                                                                                                    </div>
-                                                                                                                                                                                                <button type="submit" class="btn-primary">Ingresar</button>
-                                                                                                                                                                                                        </form>
+<script>
+function validarEmail(input) {
+    const val = input.value;
+    const regex = /^[a-zA-Z0-9._%+\-]+@@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
+    const err = document.getElementById('emailError');
+    if (!val) { err.textContent = ''; input.className = ''; return; }
+    if (val.length > 100) {
+        err.textContent = 'Máximo 30 caracteres';
+        input.classList.add('input-err'); return;
+    }
+    if (!regex.test(val)) {
+        err.textContent = 'Email inválido (sin emojis ni caracteres especiales)';
+        input.classList.add('input-err');
+        input.classList.remove('input-ok');
+    } else {
+        err.textContent = '';
+        input.classList.add('input-ok');
+        input.classList.remove('input-err');
+    }
+}
 
-                                                                                                                                                                                                                <form method="get" action="/Auth/Registro">
-                                                                                                                                                                                                                            <button type="submit" class="btn-secondary">
-                                                                                                                                                                                                                                            ¿No tenés cuenta? <span>Registrate</span>
-                                                                                                                                                                                                                                                        </button>
-                                                                                                                                                                                                                                                                </form>
-                                                                                                                                                                                                                                                                    </div>
-                                                                                                                                                                                                                                                                    </div>
+function contarPass(input) {
+    const len = input.value.length;
+    const counter = document.getElementById('passCount');
+    const err = document.getElementById('passError');
+    counter.textContent = len + '/30';
+    if (len > 0 && len < 8) {
+        err.textContent = 'Mínimo 8 caracteres (' + (8 - len) + ' faltan)';
+        input.classList.add('input-err');
+        input.classList.remove('input-ok');
+    } else if (len >= 8) {
+        err.textContent = '';
+        input.classList.add('input-ok');
+        input.classList.remove('input-err');
+    }
+}
+</script>
