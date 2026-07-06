@@ -33,7 +33,7 @@
 <div class="container" style="padding-top:8px;">
     @foreach (var p in Model)
     {
-        <a href="@Url.Action("Detalle", "Partidos", new { id = p.Id })">
+        <a href="@Url.Action("Detalle", "Partidos", new { id = p.NumeroPartido })">
             <div class="partido-card">
                 <div>
                     <div class="partido-grupo">@p.Grupo</div>

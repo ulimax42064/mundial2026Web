@@ -21,7 +21,7 @@
                                                                     <div class="detalle-row"><div class="emoji">🏟</div><div><div class="label">ESTADIO</div><div class="valor">@Model.Estadio</div></div></div>
                                                                         <div class="detalle-row"><div class="emoji">🎟</div><div><div class="label">PRECIO ENTRADA</div><div class="valor">@Model.Precio</div></div></div>
 
-                                                                            <a href="/Tickets/Comprar/@Model.Id">
+                                                                            <a href="@Url.Action("Comprar", "Tickets", new { id = Model.NumeroPartido })">
                                                                                     <button class="btn-comprar" style="margin-top:16px;">🎟 Comprar entrada</button>
                                                                                         </a>
                                                                                         </div>
