@@ -28,6 +28,24 @@
             <button class="filtro-btn @(ViewBag.GrupoSel == g ? "activo" : "")">@g</button>
         </a>
     }
+    <a href="@Url.Action("Index", "Partidos", new { fase = "32avos" })">
+        <button class="filtro-btn @(ViewBag.GrupoSel == "32avos" ? "activo" : "")">32avos</button>
+    </a>
+    <a href="@Url.Action("Index", "Partidos", new { fase = "16avos" })">
+        <button class="filtro-btn @(ViewBag.GrupoSel == "16avos" ? "activo" : "")">16avos</button>
+    </a>
+    <a href="@Url.Action("Index", "Partidos", new { fase = "Cuartos" })">
+        <button class="filtro-btn @(ViewBag.GrupoSel == "Cuartos" ? "activo" : "")">Cuartos</button>
+    </a>
+    <a href="@Url.Action("Index", "Partidos", new { fase = "Semifinal" })">
+        <button class="filtro-btn @(ViewBag.GrupoSel == "Semifinal" ? "activo" : "")">Semifinal</button>
+    </a>
+    <a href="@Url.Action("Index", "Partidos", new { fase = "Tercer Puesto" })">
+        <button class="filtro-btn @(ViewBag.GrupoSel == "Tercer Puesto" ? "activo" : "")">Tercer Puesto</button>
+    </a>
+    <a href="@Url.Action("Index", "Partidos", new { fase = "Final" })">
+        <button class="filtro-btn @(ViewBag.GrupoSel == "Final" ? "activo" : "")">Final</button>
+    </a>
 </div>
 
 <div class="container" style="padding-top:8px;">
