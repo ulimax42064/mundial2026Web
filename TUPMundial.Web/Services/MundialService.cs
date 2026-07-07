@@ -16,11 +16,13 @@ namespace TUPMundial.Web.Services
         }
 
         // ── Partidos ──────────────────────────────────────────────
-        public async Task<List<Partido>> ObtenerPartidosAsync(string? grupo = null)
+        public async Task<List<Partido>> ObtenerPartidosAsync(string? grupo = null, string? fase = null)
         {
             var url = $"{BASE}/partido?porPagina=200";
             if (!string.IsNullOrEmpty(grupo) && grupo != "Todos")
                 url += $"&grupo={Uri.EscapeDataString(grupo)}";
+            if (!string.IsNullOrEmpty(fase) && fase != "Todos")
+                url += $"&fase={Uri.EscapeDataString(fase)}";
 
             var resp = await _http.GetAsync(url);
             if (!resp.IsSuccessStatusCode) return new List<Partido>();
@@ -30,8 +32,8 @@ namespace TUPMundial.Web.Services
             return paginado?.Datos ?? new List<Partido>();
         }
 
-        public List<Partido> ObtenerPartidos(string? grupo = null)
-            => ObtenerPartidosAsync(grupo).GetAwaiter().GetResult();
+        public List<Partido> ObtenerPartidos(string? grupo = null, string? fase = null)
+            => ObtenerPartidosAsync(grupo, fase).GetAwaiter().GetResult();
 
         public async Task<Partido?> ObtenerPartidoPorIdAsync(string id)
         {
