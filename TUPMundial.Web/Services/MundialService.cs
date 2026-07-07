@@ -22,38 +22,27 @@ namespace TUPMundial.Web.Services
             if (!string.IsNullOrEmpty(grupo) && grupo != "Todos")
                 url += $"&grupo={Uri.EscapeDataString(grupo)}";
 
-            try
-            {
-                var resp = await _http.GetAsync(url);
-                if (!resp.IsSuccessStatusCode) return new List<Partido>();
-                var json = await resp.Content.ReadAsStringAsync();
-                var paginado = JsonSerializer.Deserialize<PaginadoRespuesta>(json, _json);
-                return paginado?.Datos ?? new List<Partido>();
-            }
-            catch { return new List<Partido>(); }
+            var resp = await _http.GetAsync(url);
+            if (!resp.IsSuccessStatusCode) return new List<Partido>();
+
+            var json = await resp.Content.ReadAsStringAsync();
+            var paginado = JsonSerializer.Deserialize<PaginadoRespuesta>(json, _json);
+            return paginado?.Datos ?? new List<Partido>();
         }
 
         public List<Partido> ObtenerPartidos(string? grupo = null)
             => ObtenerPartidosAsync(grupo).GetAwaiter().GetResult();
 
-        public async Task<Partido?> ObtenerPartidoPorNumeroAsync(int numero)
+        public async Task<Partido?> ObtenerPartidoPorIdAsync(string id)
         {
-            try
-            {
-                var resp = await _http.GetAsync($"{BASE}/partido/numero/{numero}");
-                if (!resp.IsSuccessStatusCode) return null;
-                var json = await resp.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<Partido>(json, _json);
-            }
-            catch { return null; }
+            var resp = await _http.GetAsync($"{BASE}/partido/{id}");
+            if (!resp.IsSuccessStatusCode) return null;
+            var json = await resp.Content.ReadAsStringAsync();
+            return JsonSerializer.Deserialize<Partido>(json, _json);
         }
 
-        public Partido? ObtenerPartidoPorNumero(int numero)
-            => ObtenerPartidoPorNumeroAsync(numero).GetAwaiter().GetResult();
-
-        // Mantener compatibilidad — busca por NumeroPartido
         public Partido? ObtenerPartidoPorId(int id)
-            => ObtenerPartidoPorNumero(id);
+            => ObtenerPartidoPorIdAsync(id.ToString()).GetAwaiter().GetResult();
 
         public List<string> ObtenerGrupos()
         {
@@ -99,29 +88,67 @@ namespace TUPMundial.Web.Services
         }
 
         // ── Tickets ───────────────────────────────────────────────
+
+        // Trae los tickets del usuario y los enriquece con los datos
+        // del partido correspondiente (equipos, fecha, estadio, grupo),
+        // ya que la API solo guarda PartidoId / NumeroPartido, no esos datos.
         public List<Ticket> ObtenerTicketsUsuario(string email)
         {
             try
             {
                 var resp = _http.GetAsync($"{BASE}/ticket?email={Uri.EscapeDataString(email)}").GetAwaiter().GetResult();
                 if (!resp.IsSuccessStatusCode) return new List<Ticket>();
+
                 var json = resp.Content.ReadAsStringAsync().GetAwaiter().GetResult();
-                return JsonSerializer.Deserialize<List<Ticket>>(json, _json) ?? new List<Ticket>();
+                var tickets = JsonSerializer.Deserialize<List<Ticket>>(json, _json) ?? new List<Ticket>();
+
+                if (tickets.Count == 0) return tickets;
+
+                var partidos = ObtenerPartidos();
+
+                foreach (var t in tickets)
+                {
+                    var partido = partidos.FirstOrDefault(p => p.NumeroPartido == t.NumeroPartido);
+                    if (partido == null) continue;
+
+                    t.Equipo1 = partido.Equipo1;
+                    t.Equipo2 = partido.Equipo2;
+                    t.Fecha   = partido.Fecha;
+                    t.Estadio = partido.Estadio;
+                    t.Grupo   = partido.Grupo;
+
+                    // Nota: la API no persiste la cantidad de entradas comprada,
+                    // solo el precio total. Por eso se asume 1 como valor por
+                    // defecto. Si necesitás que la cantidad real se guarde y
+                    // se muestre correctamente, hay que agregar esa propiedad
+                    // en el modelo Ticket del lado de la API.
+                    if (t.Cantidad <= 0) t.Cantidad = 1;
+                }
+
+                return tickets;
             }
             catch { return new List<Ticket>(); }
         }
 
-        public void ComprarTicket(string email, int numeroPartido, string sector, int cantidad, decimal precioUnit)
+        // Devuelve true si la compra se registró correctamente.
+        // Si falla (por ejemplo, sector inválido según la API), error
+        // contiene el detalle para mostrarlo al usuario en vez de fallar en silencio.
+        public bool ComprarTicket(string email, int partidoId, string sector, int cantidad, decimal precioUnit, out string? error)
         {
+            error = null;
+            var partido = ObtenerPartidoPorId(partidoId);
+            if (partido == null)
+            {
+                error = "No se encontró el partido seleccionado.";
+                return false;
+            }
+
             try
             {
-                var partido = ObtenerPartidoPorNumero(numeroPartido);
-                if (partido == null) return;
-
                 var body = JsonSerializer.Serialize(new
                 {
                     partidoId      = partido.Id,
-                    numeroPartido  = partido.NumeroPartido,
+                    numeroPartido  = partidoId,
                     nombreUsuario  = email.Split('@')[0],
                     emailComprador = email,
                     sector,
@@ -129,12 +156,25 @@ namespace TUPMundial.Web.Services
                     fechaCompra    = DateTime.UtcNow
                 });
                 var content = new StringContent(body, Encoding.UTF8, "application/json");
-                _http.PostAsync($"{BASE}/ticket", content).GetAwaiter().GetResult();
+                var resp = _http.PostAsync($"{BASE}/ticket", content).GetAwaiter().GetResult();
+
+                if (!resp.IsSuccessStatusCode)
+                {
+                    var respBody = resp.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+                    error = $"La API rechazó la compra ({(int)resp.StatusCode}): {respBody}";
+                    return false;
+                }
+
+                return true;
             }
-            catch { }
+            catch (Exception ex)
+            {
+                error = $"Error de conexión con la API: {ex.Message}";
+                return false;
+            }
         }
 
-        // ── Clases auxiliares ─────────────────────────────────────
+        // ── Clases auxiliares para deserializar ───────────────────
         private class PaginadoRespuesta
         {
             public List<Partido> Datos { get; set; } = new();
