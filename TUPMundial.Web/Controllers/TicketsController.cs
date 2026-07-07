@@ -55,9 +55,6 @@ namespace TUPMundial.Web.Controllers
             if (!EstaLogueado()) return RedirectToAction("Login", "Auth");
             var partido = _service.ObtenerPartidos()
                 .FirstOrDefault(p => p.NumeroPartido == partidoId);
-
-            if (partido == null) return RedirectToAction("Index", "Partidos");
-
             ViewBag.Sector     = sector;
             ViewBag.Cantidad   = cantidad;
             ViewBag.PrecioUnit = precioUnit;
