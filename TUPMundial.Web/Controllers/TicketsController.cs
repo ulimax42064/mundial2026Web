@@ -39,13 +39,22 @@ namespace TUPMundial.Web.Controllers
 
             if (string.IsNullOrEmpty(sector) || cantidad < 1 || precioUnit <= 0)
             {
-                var partido = _service.ObtenerPartidos()
+                var partidoInvalido = _service.ObtenerPartidos()
                     .FirstOrDefault(p => p.NumeroPartido == partidoId);
                 ViewBag.Error = "Seleccioná un sector válido";
+                return View(partidoInvalido);
+            }
+
+            var ok = _service.ComprarTicket(Email!, partidoId, sector, cantidad, precioUnit, out var error);
+
+            if (!ok)
+            {
+                var partido = _service.ObtenerPartidos()
+                    .FirstOrDefault(p => p.NumeroPartido == partidoId);
+                ViewBag.Error = error ?? "No se pudo completar la compra.";
                 return View(partido);
             }
 
-            _service.ComprarTicket(Email!, partidoId, sector, cantidad, precioUnit);
             return RedirectToAction("Confirmacion", new { partidoId, sector, cantidad, precioUnit });
         }
 
@@ -55,6 +64,9 @@ namespace TUPMundial.Web.Controllers
             if (!EstaLogueado()) return RedirectToAction("Login", "Auth");
             var partido = _service.ObtenerPartidos()
                 .FirstOrDefault(p => p.NumeroPartido == partidoId);
+
+            if (partido == null) return RedirectToAction("Index", "Partidos");
+
             ViewBag.Sector     = sector;
             ViewBag.Cantidad   = cantidad;
             ViewBag.PrecioUnit = precioUnit;
