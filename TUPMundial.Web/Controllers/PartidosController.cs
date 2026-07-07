@@ -11,14 +11,20 @@ namespace TUPMundial.Web.Controllers
         private bool EstaLogueado() =>
             !string.IsNullOrEmpty(HttpContext.Session.GetString("UsuarioEmail"));
 
-        // GET /Partidos
-        public IActionResult Index(string? grupo)
+        // GET /Partidos?grupo=Grupo A   ó   /Partidos?fase=32avos
+        public IActionResult Index(string? grupo, string? fase)
         {
             if (!EstaLogueado()) return RedirectToAction("Login", "Auth");
-            ViewBag.Nombre   = HttpContext.Session.GetString("UsuarioNombre");
-            ViewBag.Grupos   = _service.ObtenerGrupos();
-            ViewBag.GrupoSel = grupo ?? "Todos";
-            var partidos     = _service.ObtenerPartidos(grupo);
+            ViewBag.Nombre = HttpContext.Session.GetString("UsuarioNombre");
+            ViewBag.Grupos = _service.ObtenerGrupos();
+
+            // El botón activo puede ser un grupo (Grupo A, Grupo B, ...) o una fase
+            // eliminatoria (32avos, 16avos, Cuartos, Semifinal, Tercer Puesto, Final).
+            ViewBag.GrupoSel = !string.IsNullOrEmpty(grupo) ? grupo
+                              : !string.IsNullOrEmpty(fase)  ? fase
+                              : "Todos";
+
+            var partidos = _service.ObtenerPartidos(grupo, fase);
             return View(partidos);
         }
 
