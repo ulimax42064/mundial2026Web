@@ -136,7 +136,10 @@ namespace TUPMundial.Web.Services
         public bool ComprarTicket(string email, int partidoId, string sector, int cantidad, decimal precioUnit, out string? error)
         {
             error = null;
-            var partido = ObtenerPartidoPorId(partidoId);
+            // Importante: partidoId acá es el NumeroPartido (1-104), no el _id de Mongo.
+            // Por eso se busca en la lista completa filtrando por NumeroPartido,
+            // en vez de usar ObtenerPartidoPorId (que busca por _id de Mongo).
+            var partido = ObtenerPartidos().FirstOrDefault(p => p.NumeroPartido == partidoId);
             if (partido == null)
             {
                 error = "No se encontró el partido seleccionado.";
