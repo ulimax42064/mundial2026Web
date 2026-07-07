@@ -22,27 +22,38 @@ namespace TUPMundial.Web.Services
             if (!string.IsNullOrEmpty(grupo) && grupo != "Todos")
                 url += $"&grupo={Uri.EscapeDataString(grupo)}";
 
-            var resp = await _http.GetAsync(url);
-            if (!resp.IsSuccessStatusCode) return new List<Partido>();
-
-            var json = await resp.Content.ReadAsStringAsync();
-            var paginado = JsonSerializer.Deserialize<PaginadoRespuesta>(json, _json);
-            return paginado?.Datos ?? new List<Partido>();
+            try
+            {
+                var resp = await _http.GetAsync(url);
+                if (!resp.IsSuccessStatusCode) return new List<Partido>();
+                var json = await resp.Content.ReadAsStringAsync();
+                var paginado = JsonSerializer.Deserialize<PaginadoRespuesta>(json, _json);
+                return paginado?.Datos ?? new List<Partido>();
+            }
+            catch { return new List<Partido>(); }
         }
 
         public List<Partido> ObtenerPartidos(string? grupo = null)
             => ObtenerPartidosAsync(grupo).GetAwaiter().GetResult();
 
-        public async Task<Partido?> ObtenerPartidoPorIdAsync(string id)
+        public async Task<Partido?> ObtenerPartidoPorNumeroAsync(int numero)
         {
-            var resp = await _http.GetAsync($"{BASE}/partido/{id}");
-            if (!resp.IsSuccessStatusCode) return null;
-            var json = await resp.Content.ReadAsStringAsync();
-            return JsonSerializer.Deserialize<Partido>(json, _json);
+            try
+            {
+                var resp = await _http.GetAsync($"{BASE}/partido/numero/{numero}");
+                if (!resp.IsSuccessStatusCode) return null;
+                var json = await resp.Content.ReadAsStringAsync();
+                return JsonSerializer.Deserialize<Partido>(json, _json);
+            }
+            catch { return null; }
         }
 
+        public Partido? ObtenerPartidoPorNumero(int numero)
+            => ObtenerPartidoPorNumeroAsync(numero).GetAwaiter().GetResult();
+
+        // Mantener compatibilidad — busca por NumeroPartido
         public Partido? ObtenerPartidoPorId(int id)
-            => ObtenerPartidoPorIdAsync(id.ToString()).GetAwaiter().GetResult();
+            => ObtenerPartidoPorNumero(id);
 
         public List<string> ObtenerGrupos()
         {
@@ -100,25 +111,30 @@ namespace TUPMundial.Web.Services
             catch { return new List<Ticket>(); }
         }
 
-        public void ComprarTicket(string email, int partidoId, string sector, int cantidad, decimal precioUnit)
+        public void ComprarTicket(string email, int numeroPartido, string sector, int cantidad, decimal precioUnit)
         {
-            var partido = ObtenerPartidoPorId(partidoId);
-            if (partido == null) return;
-            var body = JsonSerializer.Serialize(new
+            try
             {
-                partidoId    = partido.Id,
-                numeroPartido = partidoId,
-                nombreUsuario = email.Split('@')[0],
-                emailComprador = email,
-                sector,
-                precio = precioUnit * cantidad,
-                fechaCompra = DateTime.UtcNow
-            });
-            var content = new StringContent(body, Encoding.UTF8, "application/json");
-            _http.PostAsync($"{BASE}/ticket", content).GetAwaiter().GetResult();
+                var partido = ObtenerPartidoPorNumero(numeroPartido);
+                if (partido == null) return;
+
+                var body = JsonSerializer.Serialize(new
+                {
+                    partidoId      = partido.Id,
+                    numeroPartido  = partido.NumeroPartido,
+                    nombreUsuario  = email.Split('@')[0],
+                    emailComprador = email,
+                    sector,
+                    precio         = precioUnit * cantidad,
+                    fechaCompra    = DateTime.UtcNow
+                });
+                var content = new StringContent(body, Encoding.UTF8, "application/json");
+                _http.PostAsync($"{BASE}/ticket", content).GetAwaiter().GetResult();
+            }
+            catch { }
         }
 
-        // ── Clases auxiliares para deserializar ───────────────────
+        // ── Clases auxiliares ─────────────────────────────────────
         private class PaginadoRespuesta
         {
             public List<Partido> Datos { get; set; } = new();
