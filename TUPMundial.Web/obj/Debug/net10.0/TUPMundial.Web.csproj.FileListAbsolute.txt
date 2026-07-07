@@ -96,3 +96,4 @@
 /workspaces/mundial2026Web/TUPMundial.Web/obj/Debug/net10.0/TUPMundial.Web.pdb
 /workspaces/mundial2026Web/TUPMundial.Web/obj/Debug/net10.0/TUPMundial.Web.genruntimeconfig.cache
 /workspaces/mundial2026Web/TUPMundial.Web/obj/Debug/net10.0/ref/TUPMundial.Web.dll
+/workspaces/mundial2026Web/TUPMundial.Web/bin/Debug/net10.0/seed_mundial_104.json
