@@ -25,7 +25,7 @@
                                                                             <div class="detalle-row"><div class="emoji">🏆</div><div><div class="label">GRUPO</div><div class="valor">@Model.Grupo</div></div></div>
 
                                                                                 <form method="post" action="/Tickets/Comprar">
-                                                                                        <input type="hidden" name="partidoId"  value="@Model.Id" />
+                                                                                        <input type="hidden" name="partidoId" value="@Model.NumeroPartido" />
                                                                                                 <input type="hidden" name="sector"      id="sectorInput"     value="" />
                                                                                                         <input type="hidden" name="precioUnit"  id="precioUnitInput" value="" />
                                                                                                                 <input type="hidden" name="cantidad"    id="cantidadInput"   value="1" />

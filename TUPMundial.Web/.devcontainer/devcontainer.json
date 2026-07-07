@@ -1,0 +1,3 @@
+{
+  "postStartCommand": "bash /workspaces/mundial2026Web/setup.sh"
+}
