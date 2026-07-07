@@ -43,36 +43,53 @@ for i in {1..20}; do
     sleep 1
 done
 
+sleep 2
+
 echo "=== Iniciando API en puerto $API_PORT (en su propia sesión) ==="
 cd /workspaces/mundial2026Web/APi_Mundial2026/TupApi
 setsid env ASPNETCORE_URLS="http://0.0.0.0:$API_PORT" dotnet run --no-launch-profile > /tmp/api.log 2>&1 < /dev/null &
 disown
 
 echo "Esperando a que la API responda en puerto $API_PORT..."
+API_LISTA=0
 for i in {1..30}; do
     if curl -s -o /dev/null -w "%{http_code}" "http://localhost:$API_PORT/api/partido" | grep -qE "200|404"; then
         echo "API lista."
+        API_LISTA=1
         break
     fi
     sleep 1
 done
 
-if ! curl -s -o /dev/null "http://localhost:$API_PORT/api/partido"; then
+if [ "$API_LISTA" -eq 0 ]; then
     echo "!!! La API no respondió a tiempo. Revisá /tmp/api.log para más detalle."
     tail -n 30 /tmp/api.log
 fi
 
+contar_partidos() {
+    curl -s "http://localhost:$API_PORT/api/partido?porPagina=1" | grep -o '"total":[0-9]*' | grep -o '[0-9]*'
+}
+
 echo "=== Verificando partidos cargados ==="
-TOTAL=$(curl -s "http://localhost:$API_PORT/api/partido" | grep -o '"numeroPartido"' | wc -l)
+TOTAL=$(contar_partidos)
+TOTAL=${TOTAL:-0}
 echo "Partidos actuales en base de datos: $TOTAL"
 
 if [ "$TOTAL" -eq 0 ]; then
     echo "=== Cargando 104 partidos ==="
-    curl -s -X POST "http://localhost:$API_PORT/api/partido/seed/reset" \
+    SEED_RESP=$(curl -s -w "\nHTTP_STATUS:%{http_code}" -X POST "http://localhost:$API_PORT/api/partido/seed/reset" \
         -H "Content-Type: application/json" \
-        -d @/workspaces/mundial2026Web/APi_Mundial2026/TupApi/seed_mundial_104.json
-    echo ""
-    echo "=== Partidos cargados ==="
+        -d @/workspaces/mundial2026Web/APi_Mundial2026/TupApi/seed_mundial_104.json)
+    echo "Respuesta del seed: $SEED_RESP"
+
+    sleep 1
+    TOTAL_FINAL=$(contar_partidos)
+    TOTAL_FINAL=${TOTAL_FINAL:-0}
+    if [ "$TOTAL_FINAL" -eq 0 ]; then
+        echo "!!! El seed no cargó partidos. Revisá /tmp/api.log y la respuesta de arriba."
+    else
+        echo "=== Partidos cargados correctamente: $TOTAL_FINAL ==="
+    fi
 else
     echo "=== Ya hay $TOTAL partidos en la base de datos ==="
 fi
