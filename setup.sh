@@ -1,100 +1,26 @@
 #!/bin/bash
-set -e
-
-MONGO_PORT=27017
-API_PORT=5123
-WEB_PORT=7000
-
-echo "=== Verificando MongoDB ==="
-if ! command -v mongod &> /dev/null; then
-    echo "MongoDB no encontrado, instalando..."
-    sudo apt-get update -qq
-    sudo apt-get install -y gnupg curl
-    curl -fsSL https://www.mongodb.org/static/pgp/server-7.0.asc | sudo gpg --yes -o /usr/share/keyrings/mongodb-server-7.0.gpg --dearmor
-    echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-7.0.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/7.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-7.0.list
-    sudo apt-get update -qq && sudo apt-get install -y mongodb-org
-    echo "=== MongoDB instalado ==="
-else
-    echo "MongoDB ya está instalado, salteando instalación."
-fi
-
-echo "=== Liberando puertos ocupados ==="
-fuser -k ${MONGO_PORT}/tcp 2>/dev/null || true
-fuser -k ${API_PORT}/tcp 2>/dev/null || true
-fuser -k ${WEB_PORT}/tcp 2>/dev/null || true
-fuser -k 5000/tcp 2>/dev/null || true
-fuser -k 5099/tcp 2>/dev/null || true
-pkill -f "mongod --dbpath" 2>/dev/null || true
-pkill -f "dotnet.*TupApi" 2>/dev/null || true
-pkill -f "dotnet.*TUPMundial.Web" 2>/dev/null || true
-sleep 1
-
-echo "=== Iniciando MongoDB (en su propia sesión, inmune a Ctrl+C) ==="
-sudo mkdir -p /data/db && sudo chown -R $USER /data/db
-setsid mongod --dbpath /data/db > /tmp/mongod.log 2>&1 < /dev/null &
-disown
-
-echo "Esperando a que MongoDB responda..."
-for i in {1..20}; do
-    if mongosh --quiet --eval "db.runCommand({ping:1})" &> /dev/null; then
-        echo "MongoDB listo."
-        break
-    fi
-    sleep 1
-done
-
-sleep 2
-
-echo "=== Iniciando API en puerto $API_PORT (en su propia sesión) ==="
-cd /workspaces/mundial2026Web/APi_Mundial2026/TupApi
-setsid env ASPNETCORE_URLS="http://0.0.0.0:$API_PORT" dotnet run --no-launch-profile > /tmp/api.log 2>&1 < /dev/null &
-disown
-
-echo "Esperando a que la API responda en puerto $API_PORT..."
-API_LISTA=0
-for i in {1..30}; do
-    if curl -s -o /dev/null -w "%{http_code}" "http://localhost:$API_PORT/api/partido" | grep -qE "200|404"; then
-        echo "API lista."
-        API_LISTA=1
-        break
-    fi
-    sleep 1
-done
-
-if [ "$API_LISTA" -eq 0 ]; then
-    echo "!!! La API no respondió a tiempo. Revisá /tmp/api.log para más detalle."
-    tail -n 30 /tmp/api.log
-fi
-
-contar_partidos() {
-    curl -s "http://localhost:$API_PORT/api/partido?porPagina=1" | grep -o '"total":[0-9]*' | grep -o '[0-9]*'
-}
-
-echo "=== Verificando partidos cargados ==="
-TOTAL=$(contar_partidos)
-TOTAL=${TOTAL:-0}
-echo "Partidos actuales en base de datos: $TOTAL"
-
-if [ "$TOTAL" -eq 0 ]; then
+echo "=== Instalando MongoDB ==="
+sudo apt-get update -qq
+sudo apt-get install -y gnupg curl
+curl -fsSL https://www.mongodb.org/static/pgp/server-7.0.asc | sudo gpg -o /usr/share/keyrings/mongodb-server-7.0.gpg --dearmor
+echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-7.0.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/7.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-7.0.list
+sudo apt-get update -qq && sudo apt-get install -y mongodb-org
+echo "=== Iniciando MongoDB ==="
+sudo mkdir -p /data/db && sudo chown -R codespace /data/db
+mongod --dbpath /data/db > /tmp/mongod.log 2>&1 &
+sleep 4
+echo "=== Iniciando API ==="
+cd /workspaces/mundial2026Web/ApiMundial/TupApi
+dotnet run > /tmp/api.log 2>&1 &
+sleep 10
+echo "=== Verificando partidos ==="
+TOTAL=0
+if [ "" = "0" ]; then
     echo "=== Cargando 104 partidos ==="
-    SEED_RESP=$(curl -s -w "\nHTTP_STATUS:%{http_code}" -X POST "http://localhost:$API_PORT/api/partido/seed/reset" \
-        -H "Content-Type: application/json" \
-        -d @/workspaces/mundial2026Web/APi_Mundial2026/TupApi/seed_mundial_104.json)
-    echo "Respuesta del seed: $SEED_RESP"
-
-    sleep 1
-    TOTAL_FINAL=$(contar_partidos)
-    TOTAL_FINAL=${TOTAL_FINAL:-0}
-    if [ "$TOTAL_FINAL" -eq 0 ]; then
-        echo "!!! El seed no cargó partidos. Revisá /tmp/api.log y la respuesta de arriba."
-    else
-        echo "=== Partidos cargados correctamente: $TOTAL_FINAL ==="
-    fi
-else
-    echo "=== Ya hay $TOTAL partidos en la base de datos ==="
+    curl -s -X POST http://localhost:5123/api/partido/seed/reset -H "Content-Type: application/json" -d @/workspaces/mundial2026Web/ApiMundial/TupApi/seed_mundial_104.json
+    echo ""
 fi
-
-echo "=== Iniciando MVC en puerto $WEB_PORT ==="
-echo "(Este proceso queda en primer plano. Podés cortarlo con Ctrl+C sin afectar a Mongo ni a la API.)"
+echo "===  partidos en base de datos ==="
+echo "=== Iniciando MVC en puerto 8080 ==="
 cd /workspaces/mundial2026Web/TUPMundial.Web
-ASPNETCORE_URLS="http://0.0.0.0:$WEB_PORT" dotnet run --no-launch-profile
+ASPNETCORE_URLS="http://0.0.0.0:8080" dotnet run
